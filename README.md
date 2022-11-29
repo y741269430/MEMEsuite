@@ -3,14 +3,14 @@
 Firstly, we create conda source to perform fimo analysis.  
 And then, we download the motif database from https://meme-suite.org/meme/doc/download.html.  
 
-conda create -n meme
-conda activate meme
-conda install -c bioconda meme
-conda install -c bioconda bedtools
+    conda create -n meme
+    conda activate meme
+    conda install -c bioconda meme
+    conda install -c bioconda bedtools
 
     ls pm_saf/*bed |cut -d "_" -f 2 |cut -d "/" -f 2 > filenames
 
-# BED files  
+## BED files  
 
 Firstly, we should make the BED files for downstream analysis. The BED files were make in R.  
 For example:  
@@ -87,7 +87,7 @@ The BED files can be used to convert to saf files for featurecount, it also can 
 
 ----
 
-# Make BED files to equal length BED files  
+## Make BED files to equal length BED files  
 
     vim f1_bed2equal.sh
 
@@ -100,7 +100,7 @@ The BED files can be used to convert to saf files for featurecount, it also can 
     nohup awk -v FS="\t" -v OFS="\t" '{midpos=$2+$5;print $1,midpos-250,midpos+250;}' ./pm_saf/${i}_allpeak.bed > ./pm_saf/${i}_equal_p.bed &
     done
 
-# Convert BED files to fa files   
+## Convert BED files to fa files   
 
     vim f2_bed2fa.sh
 
@@ -114,7 +114,7 @@ The BED files can be used to convert to saf files for featurecount, it also can 
     bedtools getfasta -fi $ucsc_fa -bed ./pm_saf/${i}_equal_p.bed -fo ./pm_saf/${i}_mm10 &
     done
 
-# Fimo analysis     
+## Fimo analysis     
 
     vim f3_fimo.sh
 
