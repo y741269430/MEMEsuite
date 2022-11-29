@@ -7,6 +7,7 @@ We download the docker image from https://hub.docker.com/r/memesuite/memesuite
 conda create -n meme
 conda activate meme
 conda install -c bioconda meme
+conda install -c bioconda bedtools
 
 ls pm_saf/*bed |cut -d "_" -f 2 |cut -d "/" -f 2 > filenames
 
