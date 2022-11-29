@@ -1,6 +1,7 @@
 # MEMEsuite
 
-We download the motif database from https://meme-suite.org/meme/doc/download.html.  
+Firstly, we create conda source to perform fimo analysis.  
+And then, we download the motif database from https://meme-suite.org/meme/doc/download.html.  
 
 conda create -n meme
 conda activate meme
@@ -86,43 +87,45 @@ The BED files can be used to convert to saf files for featurecount, it also can 
 
 ----
 
-# Make BED files to equal length BED files 
-##################
-vim f1_bed2equal.sh
+# Make BED files to equal length BED files  
 
-#!/bin/bash
-## make BED2equal.config ##
-## BED to equal length BED ##
+    vim f1_bed2equal.sh
 
-cat filenames | while read i; 
-do
-nohup awk -v FS="\t" -v OFS="\t" '{midpos=$2+$5;print $1,midpos-250,midpos+250;}' ./pm_saf/${i}_allpeak.bed > ./pm_saf/${i}_equal_p.bed &
-done
+    #!/bin/bash
+    ## make BED2equal.config ##
+    ## BED to equal length BED ##
 
-################ f2_bed2fa.sh ################ 
-vim f2_bed2fa.sh
+    cat filenames | while read i; 
+    do
+    nohup awk -v FS="\t" -v OFS="\t" '{midpos=$2+$5;print $1,midpos-250,midpos+250;}' ./pm_saf/${i}_allpeak.bed > ./pm_saf/${i}_equal_p.bed &
+    done
 
-#!/bin/bash
-## BED to fa ##
+# Convert BED files to fa files   
 
-ucsc_fa=/home/yangjiajun/downloads/genome/mm10_GRCm38/ucsc_fa/GRCm38.primary_assembly.genome.fa
+    vim f2_bed2fa.sh
 
-cat filenames | while read i; 
-do   
-bedtools getfasta -fi $ucsc_fa -bed ./pm_saf/${i}_equal_p.bed -fo ./pm_saf/${i}_mm10 &
-done
+    #!/bin/bash
+    ## BED to fa ##
 
-################ f3_dbs_merge.sh ################ 
-vim f3_fimo.sh
+    ucsc_fa=/home/yangjiajun/downloads/genome/mm10_GRCm38/ucsc_fa/GRCm38.primary_assembly.genome.fa
 
-#!/bin/bash
-## fimo (HOCOMOCO & JASPAR) ##
+    cat filenames | while read i; 
+    do   
+    bedtools getfasta -fi $ucsc_fa -bed ./pm_saf/${i}_equal_p.bed -fo ./pm_saf/${i}_mm10 &
+    done
 
-memedbs=/home/yangjiajun/downloads/Motif_database/merge_HM_JAS.meme
+# Fimo analysis     
 
-cat filenames | while read i; 
-do
-nohup fimo -oc ./pm_saf/${i} $memedbs ./pm_saf/${i}_mm10 &
-done
+    vim f3_fimo.sh
+
+    #!/bin/bash
+    ## fimo ##
+
+    memedbs=/home/yangjiajun/downloads/Motif_database/merge_HM_JAS.meme
+
+    cat filenames | while read i; 
+    do
+    nohup fimo -oc ./pm_saf/${i} $memedbs ./pm_saf/${i}_mm10 &
+    done
 
 
