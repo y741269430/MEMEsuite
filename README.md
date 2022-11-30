@@ -128,4 +128,14 @@ The BED files can be used to convert to saf files for featurecount, it also can 
     nohup fimo -oc ./pm_saf/${i} $memedbs ./pm_saf/${i}_mm10 &
     done
 
+## Extract the tsv files and convert to BED files
 
+    vim f4_tsv2bed.sh
+
+    #!/bin/bash
+    ## tsv2bed ##
+
+    cat filenames | while read i; 
+    do  
+    cat ./pm_saf/${i}/fimo.tsv |awk 'NR ==1 {next} {print $2"\t"$1"\t"$7}' |awk '{gsub(/:|-/, "\t", $1); print $0}' |awk '!a[$0]++{print}' |awk '/chr/ {print $1"\t"strtonum($2)"\t"strtonum($3)"\t"$4"\t"$5}' > ./pm_saf/${i}_fimo.bed &
+    done
