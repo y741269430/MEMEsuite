@@ -96,6 +96,16 @@ Finally, we saved the regions files to BED.
 
 The BED files can be used to convert to saf files for featurecount, it also can be used to fimo analysis.  
 
+    vim bed2saf.sh
+
+    #!/bin/bash
+    ## make saf (bedtools) for featurecount ##
+
+    cat filenames | while read i; 
+    do
+    nohup bedtools sort -i ${i}_allpeak.bed > ${i}.rm.bed && bedtools merge -c 4,6 -o first -i ${i}.rm.bed |awk 'BEGIN{print "GeneID" "\t"  "Chr" "\t" "Start" "\t" "End" "\t" "Strand"}{print $4"\t"$1"\t"strtonum($2)"\t"strtonum($3)"\t"$5}' > ${i}.saf && rm ${i}.rm.bed -rf &
+    done
+
 ----
 
 ## 2.Make BED files to equal length BED files  
