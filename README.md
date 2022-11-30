@@ -180,8 +180,9 @@ Firstly, we read and annotated the fimo.bed files generated above.
     library(ChIPpeakAnno)
     library(TxDb.Mmusculus.UCSC.mm10.knownGene)
 
-    peak <- lapply(list.files('ATAC-nt-rawdata/fimo/pm_saf/', "*_fimo.bed"), function(x){
-      return(readPeakFile(file.path('ATAC-nt-rawdata/fimo/pm_saf/', x)))
+    path <- 'pm_saf/'
+    peak <- lapply(list.files(paste0('ATAC-nt-rawdata/fimo/', path), "*_fimo.bed"), function(x){
+      return(readPeakFile(file.path(paste0('ATAC-nt-rawdata/fimo/', path), x)))
     })
     names(peak) <- c('e11.5', 'e12.5', 'e13.5', 'e14.5', 'e15.5')
 
@@ -190,7 +191,7 @@ Firstly, we read and annotated the fimo.bed files generated above.
                            annoDb="org.Mm.eg.db", verbose=FALSE, overlap="all")
     peakAnno_df <- lapply(peakAnnoList, function(x){x <- as.data.frame(x)})
 
-    save(peakAnno_df, file = "ATAC-nt-rawdata/fimo/pm_saf/nt_fimo_pm_Anno.RData")
+    save(peakAnno_df, file = paste0('ATAC-nt-rawdata/fimo/', path, 'nt_fimo_Anno.RData'))
 
 Download and read the tf files from https://hocomoco11.autosome.org/final_bundle/hocomoco11/full/MOUSE/mono/HOCOMOCOv11_full_annotation_MOUSE_mono.tsv  
 
@@ -233,8 +234,8 @@ We connect the transcription factors and their target genes.
     fimo_link_merge <- data.frame(regulatoryGene = co[,1], targetGene = co[,2])
     fimo_link_each <- lapply(fimo_linkcod, function(x){x <- data.frame(regulatoryGene = x[,2], targetGene = x[,16])})
     
-    write.csv(fimo_link_merge, "ATAC-nt-rawdata/fimo/pm_saf/fimo_link_merge.csv", row.names = F)
-    save(fimo_link, fimo_link_merge, fimo_link_each, file = "ATAC-nt-rawdata/fimo/pm_saf/nt_fimo_pm_link.Rdata")
+    write.csv(fimo_link_merge, paste0('ATAC-nt-rawdata/fimo/', path, 'fimo_link_merge.csv'), row.names = F)
+    save(fimo_link, fimo_link_merge, fimo_link_each, file = paste0('ATAC-nt-rawdata/fimo/', path, 'nt_fimo_link.Rdata'))
 
 
 
