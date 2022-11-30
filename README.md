@@ -1,18 +1,20 @@
 # MEMEsuite
 
 - 0.Build source
-- 1.BED files  
+- 1.BED files (R)  
 - 2.Make BED files to equal length BED files 
 - 3.Convert BED files to fa files  
 - 4.Fimo analysis   
 - 5.Extract the tsv files and convert to BED files
+- 6.Read BED files and construct the connection files (R)    
 
 ----
 
 ## 0.Build source  
 
 Firstly, we create conda source to perform fimo analysis.  
-And then, we download the motif database from https://meme-suite.org/meme/doc/download.html.  
+And then, we download the motif database from https://hocomoco11.autosome.org/final_bundle/hocomoco11/full/MOUSE/mono/HOCOMOCOv11_full_MOUSE_mono_meme_format.meme.  
+We download the tf files from https://hocomoco11.autosome.org/final_bundle/hocomoco11/full/MOUSE/mono/HOCOMOCOv11_full_annotation_MOUSE_mono.tsv.  
 
     conda create -n meme
     conda activate meme
@@ -21,7 +23,7 @@ And then, we download the motif database from https://meme-suite.org/meme/doc/do
 
     ls pm_saf/*bed |cut -d "_" -f 2 |cut -d "/" -f 2 > filenames
 
-## 1.BED files  
+## 1.BED files (R)  
 
 Firstly, we should make the BED files for downstream analysis. The BED files were make in R.  
 For example:  
@@ -29,6 +31,7 @@ We annotated the BED files by ChIPseeker and ChIPpeakAnno.
 
     library(ChIPseeker)
     library(ChIPpeakAnno)
+    library(TxDb.Mmusculus.UCSC.mm10.knownGene)
 
     peak <- lapply(list.files('ATAC-nt-rawdata/peak/', "*.bed"), 
                    function(x){return(readPeakFile(file.path('ATAC-nt-rawdata/peak/', x)))})
@@ -168,3 +171,71 @@ The BED files can be used to convert to saf files for featurecount, it also can 
     do  
     cat $path/${i}/fimo.tsv |awk 'NR ==1 {next} {print $2"\t"$1"\t"$7}' |awk '{gsub(/:|-/, "\t", $1); print $0}' |awk '!a[$0]++{print}' |awk '/chr/ {print $1"\t"strtonum($2)"\t"strtonum($3)"\t"$4"\t"$5}' > $path/${i}_fimo.bed &
     done
+
+## 6.Read BED files and construct the connection files (R)    
+
+Firstly, we read and annotated the fimo.bed files generated above.  
+
+    library(ChIPseeker)
+    library(ChIPpeakAnno)
+    library(TxDb.Mmusculus.UCSC.mm10.knownGene)
+
+    peak <- lapply(list.files('ATAC-nt-rawdata/fimo/pm_saf/', "*_fimo.bed"), function(x){
+      return(readPeakFile(file.path('ATAC-nt-rawdata/fimo/pm_saf/', x)))
+    })
+    names(peak) <- c('e11.5', 'e12.5', 'e13.5', 'e14.5', 'e15.5')
+
+    txdb <- TxDb.Mmusculus.UCSC.mm10.knownGene
+    peakAnnoList <- lapply(peak, annotatePeak, TxDb=txdb, tssRegion=c(-2000, 0), 
+                           annoDb="org.Mm.eg.db", verbose=FALSE, overlap="all")
+    peakAnno_df <- lapply(peakAnnoList, function(x){x <- as.data.frame(x)})
+
+    save(peakAnno_df, file = "ATAC-nt-rawdata/fimo/pm_saf/nt_fimo_pm_Anno.RData")
+
+Download and read the tf files from https://hocomoco11.autosome.org/final_bundle/hocomoco11/full/MOUSE/mono/HOCOMOCOv11_full_annotation_MOUSE_mono.tsv  
+
+    tf <- read.csv("downloads/Motif_database/HOCOMOCOv11_full_annotation_MOUSE_mono.tsv", sep = '\t')[,c(1,2,17,4,8,14)]
+    colnames(tf)
+    [1] "Model"                "Transcription.factor" "EntrezGene"           "Quality"              "Data.source"          "TF.family"
+
+Merge peakAnno_df and tf  
+
+    fimo_link <- lapply(peakAnno_df, function(x){
+      x <- x[,c(1,2,3,6,7,8,12,14,16:19)]
+      colnames(x) <- c("seqnames", "start", "end", "Model", "pvalue", "annotation", "geneLength", "ENTREZID", "distanceToTSS", "ENSEMBL", "targetGene", "GENENAME")
+      x <- merge(tf, x, "Model")
+      return(x)
+    })
+
+We selected transcription factors validated by ChiP Seq and codding genes.  
+
+    fimo_linkcod <- lapply(fimo_link, function(x){
+      x <- x[-grep("cDNA", ignore.case = T, x$GENENAME),]
+      x <- x[-grep("pseudogene", ignore.case = T, x$GENENAME),]
+      x <- x[-grep("small nucleolar RNA", ignore.case = T, x$GENENAME),]
+      x <- x[-grep("predicted gene", ignore.case = T, x$GENENAME),]
+      x <- x[grep("ChIP-Seq", ignore.case = T, x$Data.source),]
+      return(x)
+    })
+
+We connect the transcription factors and their target genes.  
+
+    link_genes <- lapply(fimo_linkcod, function(x){x <- paste(x$Transcription.factor, x$targetGene, sep = "~")})
+
+    co <- Reduce(intersect, list(link_genes[[1]],
+                                 link_genes[[2]],
+                                 link_genes[[3]],
+                                 link_genes[[4]],
+                                 link_genes[[5]]))
+    co <- unique(co)
+    co <- stringr::str_split_fixed(co, "~", n = 2)
+
+    fimo_link_merge <- data.frame(regulatoryGene = co[,1], targetGene = co[,2])
+    fimo_link_each <- lapply(fimo_linkcod, function(x){x <- data.frame(regulatoryGene = x[,2], targetGene = x[,16])})
+    
+    write.csv(fimo_link_merge, "ATAC-nt-rawdata/fimo/pm_saf/fimo_link_merge.csv", row.names = F)
+    save(fimo_link, fimo_link_merge, fimo_link_each, file = "ATAC-nt-rawdata/fimo/pm_saf/nt_fimo_pm_link.Rdata")
+
+
+
+
