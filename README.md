@@ -1,5 +1,11 @@
 # MEMEsuite
 
+- 1.BED files  
+- 2.Make BED files to equal length BED files 
+- 3.Convert BED files to fa files  
+- 4.Fimo analysis   
+- 5.Extract the tsv files and convert to BED files
+
 Firstly, we create conda source to perform fimo analysis.  
 And then, we download the motif database from https://meme-suite.org/meme/doc/download.html.  
 
@@ -10,7 +16,7 @@ And then, we download the motif database from https://meme-suite.org/meme/doc/do
 
     ls pm_saf/*bed |cut -d "_" -f 2 |cut -d "/" -f 2 > filenames
 
-## BED files  
+## 1.BED files  
 
 Firstly, we should make the BED files for downstream analysis. The BED files were make in R.  
 For example:  
@@ -87,7 +93,7 @@ The BED files can be used to convert to saf files for featurecount, it also can 
 
 ----
 
-## Make BED files to equal length BED files  
+## 2.Make BED files to equal length BED files  
 
     vim f1_bed2equal.sh
 
@@ -100,7 +106,7 @@ The BED files can be used to convert to saf files for featurecount, it also can 
     nohup awk -v FS="\t" -v OFS="\t" '{midpos=$2+$5;print $1,midpos-250,midpos+250;}' ./pm_saf/${i}_allpeak.bed > ./pm_saf/${i}_equal_p.bed &
     done
 
-## Convert BED files to fa files   
+## 3.Convert BED files to fa files   
 
     vim f2_bed2fa.sh
 
@@ -114,7 +120,7 @@ The BED files can be used to convert to saf files for featurecount, it also can 
     bedtools getfasta -fi $ucsc_fa -bed ./pm_saf/${i}_equal_p.bed -fo ./pm_saf/${i}_mm10 &
     done
 
-## Fimo analysis     
+## 4.Fimo analysis     
 
     vim f3_fimo.sh
 
@@ -128,7 +134,7 @@ The BED files can be used to convert to saf files for featurecount, it also can 
     nohup fimo -oc ./pm_saf/${i} $memedbs ./pm_saf/${i}_mm10 &
     done
 
-## Extract the tsv files and convert to BED files
+## 5.Extract the tsv files and convert to BED files  
 
     vim f4_tsv2bed.sh
 
