@@ -1,5 +1,6 @@
 # MEMEsuite
 
+- 0.Build source
 - 1.BED files  
 - 2.Make BED files to equal length BED files 
 - 3.Convert BED files to fa files  
@@ -7,6 +8,8 @@
 - 5.Extract the tsv files and convert to BED files
 
 ----
+
+## 0.Build source  
 
 Firstly, we create conda source to perform fimo analysis.  
 And then, we download the motif database from https://meme-suite.org/meme/doc/download.html.  
