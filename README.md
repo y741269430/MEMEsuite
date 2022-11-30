@@ -101,9 +101,11 @@ The BED files can be used to convert to saf files for featurecount, it also can 
     #!/bin/bash
     ## make saf (bedtools) for featurecount ##
 
+    path=./pm_saf
+    
     cat filenames | while read i; 
     do
-    nohup bedtools sort -i ${i}_allpeak.bed > ${i}.rm.bed && bedtools merge -c 4,6 -o first -i ${i}.rm.bed |awk 'BEGIN{print "GeneID" "\t"  "Chr" "\t" "Start" "\t" "End" "\t" "Strand"}{print $4"\t"$1"\t"strtonum($2)"\t"strtonum($3)"\t"$5}' > ${i}.saf && rm ${i}.rm.bed -rf &
+    nohup bedtools sort -i $path/${i}_allpeak.bed > $path/${i}.rm.bed && bedtools merge -c 4,6 -o first -i ${i}.rm.bed |awk 'BEGIN{print "GeneID" "\t"  "Chr" "\t" "Start" "\t" "End" "\t" "Strand"}{print $4"\t"$1"\t"strtonum($2)"\t"strtonum($3)"\t"$5}' > $path/${i}.saf && rm $path/${i}.rm.bed -rf &
     done
 
 ----
@@ -115,10 +117,12 @@ The BED files can be used to convert to saf files for featurecount, it also can 
     #!/bin/bash
     ## make BED2equal.config ##
     ## BED to equal length BED ##
-
+    
+    path=./pm_saf
+    
     cat filenames | while read i; 
     do
-    nohup awk -v FS="\t" -v OFS="\t" '{midpos=$2+$5;print $1,midpos-250,midpos+250;}' ./pm_saf/${i}_allpeak.bed > ./pm_saf/${i}_equal_p.bed &
+    nohup awk -v FS="\t" -v OFS="\t" '{midpos=$2+$5;print $1,midpos-250,midpos+250;}' $path/${i}_allpeak.bed > $path/${i}_equal_p.bed &
     done
 
 ## 3.Convert BED files to fa files   
@@ -127,12 +131,13 @@ The BED files can be used to convert to saf files for featurecount, it also can 
 
     #!/bin/bash
     ## BED to fa ##
-
+    
+    path=./pm_saf
     ucsc_fa=/home/yangjiajun/downloads/genome/mm10_GRCm38/ucsc_fa/GRCm38.primary_assembly.genome.fa
 
     cat filenames | while read i; 
     do   
-    bedtools getfasta -fi $ucsc_fa -bed ./pm_saf/${i}_equal_p.bed -fo ./pm_saf/${i}_mm10 &
+    bedtools getfasta -fi $ucsc_fa -bed $path/${i}_equal_p.bed -fo $path/${i}_mm10 &
     done
 
 ## 4.Fimo analysis     
@@ -141,12 +146,13 @@ The BED files can be used to convert to saf files for featurecount, it also can 
 
     #!/bin/bash
     ## fimo ##
-
+    
+    path=./pm_saf
     memedbs=/home/yangjiajun/downloads/Motif_database/merge_HM_JAS.meme
 
     cat filenames | while read i; 
     do
-    nohup fimo -oc ./pm_saf/${i} $memedbs ./pm_saf/${i}_mm10 &
+    nohup fimo -oc $path/${i} $memedbs $path/${i}_mm10 &
     done
 
 ## 5.Extract the tsv files and convert to BED files  
@@ -156,7 +162,9 @@ The BED files can be used to convert to saf files for featurecount, it also can 
     #!/bin/bash
     ## tsv2bed ##
 
+    path=./pm_saf
+    
     cat filenames | while read i; 
     do  
-    cat ./pm_saf/${i}/fimo.tsv |awk 'NR ==1 {next} {print $2"\t"$1"\t"$7}' |awk '{gsub(/:|-/, "\t", $1); print $0}' |awk '!a[$0]++{print}' |awk '/chr/ {print $1"\t"strtonum($2)"\t"strtonum($3)"\t"$4"\t"$5}' > ./pm_saf/${i}_fimo.bed &
+    cat $path/${i}/fimo.tsv |awk 'NR ==1 {next} {print $2"\t"$1"\t"$7}' |awk '{gsub(/:|-/, "\t", $1); print $0}' |awk '!a[$0]++{print}' |awk '/chr/ {print $1"\t"strtonum($2)"\t"strtonum($3)"\t"$4"\t"$5}' > $path/${i}_fimo.bed &
     done
