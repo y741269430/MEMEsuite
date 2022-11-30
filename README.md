@@ -6,6 +6,8 @@
 - 4.Fimo analysis   
 - 5.Extract the tsv files and convert to BED files
 
+----
+
 Firstly, we create conda source to perform fimo analysis.  
 And then, we download the motif database from https://meme-suite.org/meme/doc/download.html.  
 
