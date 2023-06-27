@@ -42,6 +42,8 @@ We annotated the BED files by ChIPseeker and ChIPpeakAnno.
     peakAnno_df <- lapply(peakAnnoList, function(x){x <- as.data.frame(x)})
     
 And then we divided the chromatin into promoter regions and gene body regions.  
+![peak_anno.png](https://github.com/y741269430/MEMEsuite/blob/main/peak_anno.png)  
+
     
     region_bed <- lapply(peakAnno_df, function(x){
         colnames(x)[6:12] <- c('name', 'score', 'strand2', 'signalValue', 'pValue', 'qValue', 'peak')
