@@ -39,12 +39,12 @@ We annotated the BED files by ChIPseeker and ChIPpeakAnno.
     txdb <- TxDb.Mmusculus.UCSC.mm10.knownGene
     peakAnnoList <- lapply(peak, annotatePeak, TxDb=txdb, tssRegion=c(-3000, 0), 
                            annoDb="org.Mm.eg.db", verbose=FALSE, overlap="all")
-    peakAnno_df <- lapply(peakAnnoList, function(x){x <- as.data.frame(x)})
+    peakAnno_df <- lapply(peakAnnoList, function(x){x <- as.data.frame(x)})  
     
 And then we divided the chromatin into promoter regions and gene body regions.  
+
 ![peak_anno.png](https://github.com/y741269430/MEMEsuite/blob/main/peak_anno.png)  
 
-    
     region_bed <- lapply(peakAnno_df, function(x){
         # colnames(x)[6:12] <- c('name', 'score', 'strand2', 'signalValue', 'pValue', 'qValue', 'peak')
         # x <- x[, c(1,2,3,23,7,8)]
@@ -206,6 +206,8 @@ Download and read the tf files from https://hocomoco11.autosome.org/final_bundle
     [1] "Model"                "Transcription.factor" "EntrezGene"           "Quality"              "Data.source"          "TF.family"
 
 Merge peakAnno_df and tf  
+
+![fimo_peak_anno.png](https://github.com/y741269430/MEMEsuite/blob/main/fimo_peak_anno.png)  
 
     fimo_link <- lapply(peakAnno_df, function(x){
       x <- x[,c(1,2,3,6,7,8,12,14,16:19)]
