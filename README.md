@@ -46,15 +46,17 @@ And then we divided the chromatin into promoter regions and gene body regions.
 
     
     region_bed <- lapply(peakAnno_df, function(x){
-        colnames(x)[6:12] <- c('name', 'score', 'strand2', 'signalValue', 'pValue', 'qValue', 'peak')
-        x <- x[, c(1,2,3,23,7,8)]
+        # colnames(x)[6:12] <- c('name', 'score', 'strand2', 'signalValue', 'pValue', 'qValue', 'peak')
+        # x <- x[, c(1,2,3,23,7,8)]
+        x <- x[, c(1,2,3,19,7,5)]
         return(x)
       })
     pm_bed <- lapply(peakAnno_df, function(x){
         x <- x[-grep("Rik$", ignore.case = F, x$SYMBOL),]
         x <- x[grep("Promoter", ignore.case = F, x$annotation), ]
-        colnames(x)[6:12] <- c('name', 'score', 'strand2', 'signalValue', 'pValue', 'qValue', 'peak')
-        x <- x[, c(1,2,3,23,7,8)]
+        # colnames(x)[6:12] <- c('name', 'score', 'strand2', 'signalValue', 'pValue', 'qValue', 'peak')
+        # x <- x[, c(1,2,3,23,7,8)]
+        x <- x[, c(1,2,3,19,7,5)]
         return(x)
       })
     gb_bed <- lapply(peakAnno_df, function(x){
@@ -64,15 +66,17 @@ And then we divided the chromatin into promoter regions and gene body regions.
                  grep("Exon", ignore.case = F, x$annotation),
                  grep("Downstream", ignore.case = F, x$annotation),
                  grep("3' UTR", ignore.case = F, x$annotation)), ]
-        colnames(x)[6:12] <- c('name', 'score', 'strand2', 'signalValue', 'pValue', 'qValue', 'peak')
-        x <- x[, c(1,2,3,23,7,8)]
+        # colnames(x)[6:12] <- c('name', 'score', 'strand2', 'signalValue', 'pValue', 'qValue', 'peak')
+        # x <- x[, c(1,2,3,23,7,8)]
+        x <- x[, c(1,2,3,19,7,5)]
         return(x)
       })
     dis_bed <- lapply(peakAnno_df, function(x){
         x <- x[-grep("Rik$", ignore.case = F, x$SYMBOL), ]
         x <- x[grep("Distal Intergenic", ignore.case = F, x$annotation),]
-        colnames(x)[6:12] <- c('name', 'score', 'strand2', 'signalValue', 'pValue', 'qValue', 'peak')
-        x <- x[, c(1,2,3,23,7,8)]
+        # colnames(x)[6:12] <- c('name', 'score', 'strand2', 'signalValue', 'pValue', 'qValue', 'peak')
+        # x <- x[, c(1,2,3,23,7,8)]
+        x <- x[, c(1,2,3,19,7,5)]
         return(x)
       })
   
@@ -189,7 +193,7 @@ Firstly, we read and annotated the fimo.bed files generated above.
     names(peak) <- c('e11.5', 'e12.5', 'e13.5', 'e14.5', 'e15.5')
 
     txdb <- TxDb.Mmusculus.UCSC.mm10.knownGene
-    peakAnnoList <- lapply(peak, annotatePeak, TxDb=txdb, tssRegion=c(-2000, 0), 
+    peakAnnoList <- lapply(peak, annotatePeak, TxDb=txdb, tssRegion=c(-3000, 0), 
                            annoDb="org.Mm.eg.db", verbose=FALSE, overlap="all")
     peakAnno_df <- lapply(peakAnnoList, function(x){x <- as.data.frame(x)})
 
