@@ -37,7 +37,7 @@ We annotated the BED files by ChIPseeker and ChIPpeakAnno.
                    function(x){return(readPeakFile(file.path('ATAC-nt-rawdata/peak/', x)))})
     names(peak) <- c('e11.5', 'e12.5', 'e13.5', 'e14.5', 'e15.5')
     txdb <- TxDb.Mmusculus.UCSC.mm10.knownGene
-    peakAnnoList <- lapply(peak, annotatePeak, TxDb=txdb, tssRegion=c(-2000, 0), 
+    peakAnnoList <- lapply(peak, annotatePeak, TxDb=txdb, tssRegion=c(-3000, 0), 
                            annoDb="org.Mm.eg.db", verbose=FALSE, overlap="all")
     peakAnno_df <- lapply(peakAnnoList, function(x){x <- as.data.frame(x)})
     
