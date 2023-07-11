@@ -260,7 +260,7 @@ We can directly use the file output from f2_bed2fa.sh for meme-chip analysis.
     
     cat filenames | while read i; 
     do
-    nohup meme-chip -meme-p 6 -oc $path/${i} $path/${i}_mm10 -spamo-skip -fimo-skip -db $memedbs &
+    nohup meme-chip -meme-p 6 -oc $path/${i}_meme $path/${i}_mm10 -spamo-skip -fimo-skip -db $memedbs &
     done  
     
 It may report the following error.  
