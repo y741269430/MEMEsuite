@@ -6,7 +6,8 @@
 - 3.Convert BED files to fa files  
 - 4.Fimo analysis   
 - 5.Extract the tsv files and convert to BED files
-- 6.Read BED files and construct the connection files (R)    
+- 6.Read BED files and construct the connection files (R)
+- 7.meme-chip analysis
 
 ----
 
@@ -245,6 +246,29 @@ We connect the transcription factors and their target genes.
     write.csv(fimo_link_merge, paste0('ATAC-nt-rawdata/fimo/', path, 'fimo_link_merge.csv'), row.names = F)
     save(fimo_link, fimo_linkcod, fimo_link_merge, fimo_link_each, file = paste0('ATAC-nt-rawdata/fimo/', path, 'nt_fimo_link.Rdata'))
 
+## 7.meme-chip analysis  
 
+We can directly use the file output from f2_bed2fa.sh for meme-chip analysis.
 
+    vim m3_memechip.sh
+
+    #!/bin/bash
+    ## meme-chip ##
+    
+    path=./
+    memedbs=/home/yangjiajun/downloads/Motif_database/merge_HM_JAS.meme
+    
+    cat filenames | while read i; 
+    do
+    nohup meme-chip -meme-p 6 -oc $path/${i} $path/${i}_mm10 -spamo-skip -fimo-skip -db $memedbs &
+    done  
+    
+It may report the following error.  
+
+    Bad file name.
+    Bad file name.
+    Bad file name.
+    FATAL: Template does not contain data section.
+
+Waiting for resolution.
 
