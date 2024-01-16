@@ -46,7 +46,7 @@ And then we divided the chromatin into promoter regions and gene body regions.
 
 ![peak_anno.png](https://github.com/y741269430/MEMEsuite/blob/main/peak_anno.png)  
 
-    # chr start end SYMBOL xxx strand
+    # chr start end SYMBOL width strand
     region_bed <- lapply(peakAnno_df, function(x){
         # colnames(x)[6:12] <- c('name', 'score', 'strand2', 'signalValue', 'pValue', 'qValue', 'peak')
         # x <- x[, c(1,2,3,23,7,8)]
