@@ -177,7 +177,7 @@ The BED files can be used to convert to saf files for featurecount, it also can 
     
     cat filenames | while read i; 
     do  
-    cat $path/${i}/fimo.tsv |awk 'NR ==1 {next} {print $2"\t"$1"\t"$7}' |awk '{gsub(/:|-/, "\t", $1); print $0}' |awk '!a[$0]++{print}' |awk '/chr/ {print $1"\t"strtonum($2)"\t"strtonum($3)"\t"$4"\t"$5}' > $path/${i}_fimo.bed &
+    cat $path/${i}/fimo.tsv |awk 'NR ==1 {next} {print $2"\t"$3"\t"$4"\t"$1"\t"$7}' |awk '/chr/ {print $1"\t"strtonum($2)"\t"strtonum($3)"\t"$4"\t"$5}' > $path/${i}_fimo.bed &
     done
 
 ## 6.Read BED files and construct the connection files (R)    
