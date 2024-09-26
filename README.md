@@ -36,12 +36,29 @@ vim meme_bed2fa.sh
 #!/bin/bash
 ## BED to fa ##
 
+# 检查是否提供了足够的参数
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <input_directory> <output_directory>"
+    exit 1
+fi
+
+# 获取输入和输出目录路径
+input_dir=$1
+output_dir=$2
+
+# 设置参考基因组路径
 ucsc_fa=/home/jjyang/downloads/genome/mm39_GRCm39/ucsc_fa/GRCm39.genome.fa
 
-cat filenames | while read i; 
-do   
-bedtools getfasta -fi $ucsc_fa -bed ./bed500/${i}_equal_p.bed -fo ./bed500/${i}_mm10 &
+# 读取文件名列表
+cat filenames | while read i; do
+    # 构造输入和输出文件路径
+    input_file="$input_dir/${i}_equal_p.bed"
+    output_file="$output_dir/${i}_mm10"
+
+    # 运行 bedtools getfasta
+    nohup bedtools getfasta -fi "$ucsc_fa" -bed "$input_file" -fo "$output_file" &
 done
+
 ```
 进行meme-chip分析  
 ```bash
@@ -50,13 +67,28 @@ vim memechip.sh
 #!/bin/bash
 ## meme-chip ##
 
-path=./meme
+# 检查是否提供了足够的参数
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <input_directory> <output_directory>"
+    exit 1
+fi
+
+# 获取输入和输出目录路径
+input_dir=$1
+output_dir=$2
+
+# 设置 motif 数据库路径
 memedbs=/home/jjyang/downloads/Motif_database/merge_HM_JAS.meme
 
-cat filenames | while read i; 
-do
-nohup meme-chip -meme-p 6 -oc $path/${i}_meme ./bed500/${i}_mm10 -db $memedbs &
-done 
+# 读取文件名列表
+cat filenames | while read i; do
+    # 构造输入和输出文件路径
+    input_file="$input_dir/${i}_mm10"
+    output_path="$output_dir/${i}_meme"
+
+    # 运行 meme-chip
+    nohup meme-chip -meme-p 6 -oc "$output_path" "$input_file" -db "$memedbs" &
+done
 ```
     
 ## 3.Fimo analysis  
@@ -68,12 +100,27 @@ vim f1_fimo.sh
 #!/bin/bash
 ## fimo ##
 
-path=./fimo
+# 森检查是否提供了足够的参数
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <input_directory> <output_directory>"
+    exit 1
+fi
+
+# 获取输入和输出目录路径
+input_dir=$1
+output_dir=$2
+
+# 设置 motif 数据库路径
 memedbs=/home/jjyang/downloads/Motif_database/merge_HM_JAS.meme
 
-cat filenames | while read i; 
-do
-nohup fimo -oc $path/${i} $memedbs ./bed500/${i}_mm10 &
+# 读取文件名列表
+cat filenames | while read i; do
+    # 构造输入和输出文件路径
+    input_file="$input_dir/${i}_mm10"
+    output_path="$output_dir/${i}"
+
+    # 运行 fimo
+    nohup fimo -oc "$output_path" "$memedbs" "$input_file" &
 done
 ```
 
