@@ -9,9 +9,9 @@
 
 ## 0.创建conda环境用于meme分析  
 
-Firstly, we create conda source to perform fimo analysis.  
-And then, we download the motif database from https://hocomoco11.autosome.org/final_bundle/hocomoco11/full/MOUSE/mono/HOCOMOCOv11_full_MOUSE_mono_meme_format.meme.  
-We download the tf files from https://hocomoco11.autosome.org/final_bundle/hocomoco11/full/MOUSE/mono/HOCOMOCOv11_full_annotation_MOUSE_mono.tsv.  
+- Firstly, we create conda source to perform fimo analysis.  
+- And then, we download the motif database from https://hocomoco11.autosome.org/final_bundle/hocomoco11/full/MOUSE/mono/HOCOMOCOv11_full_MOUSE_mono_meme_format.meme.  
+- We download the tf files from https://hocomoco11.autosome.org/final_bundle/hocomoco11/full/MOUSE/mono/HOCOMOCOv11_full_annotation_MOUSE_mono.tsv.  
 
 ```bash
 conda create -n meme
@@ -19,7 +19,8 @@ conda activate meme
 conda install -c bioconda meme
 conda install -c bioconda bedtools
 
-ls pm_saf/*bed |cut -d "_" -f 2 |cut -d "/" -f 2 > filenames 
+# 生成一个filenames的文件，用来记录输出的文件名称（样本名称），例如：
+ls bed500/*bed |cut -d "_" -f 2 |cut -d "/" -f 2 > filenames 
 ```
 
 ## 1.构建meme-chip所需的bed文件   
@@ -58,7 +59,6 @@ nohup meme-chip -meme-p 6 -oc $path/${i}_meme ./bed500/${i}_mm10 -db $memedbs &
 done 
 ```
     
-
 ## 3.Fimo analysis  
 
 提前创建fimo文件夹
