@@ -1,184 +1,96 @@
 # MEMEsuite
 
-- 0.Build source
-- 1.BED files (R)  
-- 2.Make BED files to equal length BED files 
-- 3.Convert BED files to fa files  
-- 4.Fimo analysis   
-- 5.Extract the tsv files and convert to BED files
-- 6.Read BED files and construct the connection files (R)
-- 7.meme-chip analysis
+- 0.创建conda环境用于meme分析  
+- 1.构建meme-chip所需的bed文件
+- 2.meme-chip analysis   
+- 3.Fimo analysis  
 
-----
+---
 
-## 0.Build source  
+## 0.创建conda环境用于meme分析  
 
 Firstly, we create conda source to perform fimo analysis.  
 And then, we download the motif database from https://hocomoco11.autosome.org/final_bundle/hocomoco11/full/MOUSE/mono/HOCOMOCOv11_full_MOUSE_mono_meme_format.meme.  
 We download the tf files from https://hocomoco11.autosome.org/final_bundle/hocomoco11/full/MOUSE/mono/HOCOMOCOv11_full_annotation_MOUSE_mono.tsv.  
 
-    conda create -n meme
-    conda activate meme
-    conda install -c bioconda meme
-    conda install -c bioconda bedtools
+```bash
+conda create -n meme
+conda activate meme
+conda install -c bioconda meme
+conda install -c bioconda bedtools
 
-    ls pm_saf/*bed |cut -d "_" -f 2 |cut -d "/" -f 2 > filenames
+ls pm_saf/*bed |cut -d "_" -f 2 |cut -d "/" -f 2 > filenames 
+```
 
-## 1.BED files (R)  
+## 1.构建meme-chip所需的bed文件   
+前面教程介绍过如何创建了，这里不再叙述  
+- https://github.com/y741269430/featurecounts?tab=readme-ov-file#31-%E6%9E%84%E5%BB%BAmeme-chip%E6%89%80%E9%9C%80%E7%9A%84bed%E6%96%87%E4%BB%B6
 
-Firstly, we should make the BED files for downstream analysis. The BED files were make in R.  
-For example:  
-We annotated the BED files by ChIPseeker and ChIPpeakAnno.  
+## 2.meme-chip analysis   
 
-    library(ChIPseeker)
-    library(ChIPpeakAnno)
-    library(TxDb.Mmusculus.UCSC.mm10.knownGene)
+将bed文件转为fasta文件  
+```bash
+vim meme_bed2fa.sh
 
-    peak <- lapply(list.files('ATAC-nt-rawdata/peak/', "*.bed"), 
-                   function(x){return(readPeakFile(file.path('ATAC-nt-rawdata/peak/', x)))})
-    names(peak) <- c('e11.5', 'e12.5', 'e13.5', 'e14.5', 'e15.5')
-    txdb <- TxDb.Mmusculus.UCSC.mm10.knownGene
-    peakAnnoList <- lapply(peak, annotatePeak, TxDb=txdb, tssRegion=c(-3000, 0), 
-                           annoDb="org.Mm.eg.db", verbose=FALSE, overlap="all")
-    peakAnno_df <- lapply(peakAnnoList, function(x){x <- as.data.frame(x)})  
+#!/bin/bash
+## BED to fa ##
+
+ucsc_fa=/home/jjyang/downloads/genome/mm39_GRCm39/ucsc_fa/GRCm39.genome.fa
+
+cat filenames | while read i; 
+do   
+bedtools getfasta -fi $ucsc_fa -bed ./bed500/${i}_equal_p.bed -fo ./bed500/${i}_mm10 &
+done
+```
+进行meme-chip分析  
+```bash
+vim memechip.sh
+
+#!/bin/bash
+## meme-chip ##
+
+path=./meme
+memedbs=/home/jjyang/downloads/Motif_database/merge_HM_JAS.meme
+
+cat filenames | while read i; 
+do
+nohup meme-chip -meme-p 6 -oc $path/${i}_meme ./bed500/${i}_mm10 -db $memedbs &
+done 
+```
     
-And then we divided the chromatin into promoter regions and gene body regions.  
 
-![peak_anno.png](https://github.com/y741269430/MEMEsuite/blob/main/peak_anno.png)  
+## 3.Fimo analysis  
 
-    # chr start end SYMBOL width strand
-    region_bed <- lapply(peakAnno_df, function(x){
-        # colnames(x)[6:12] <- c('name', 'score', 'strand2', 'signalValue', 'pValue', 'qValue', 'peak')
-        # x <- x[, c(1,2,3,23,7,8)]
-        x <- x[, c(1,2,3,19,7,5)]
-        return(x)
-      })
-    pm_bed <- lapply(peakAnno_df, function(x){
-        x <- x[-grep("Rik$", ignore.case = F, x$SYMBOL),]
-        x <- x[grep("Promoter", ignore.case = F, x$annotation), ]
-        # colnames(x)[6:12] <- c('name', 'score', 'strand2', 'signalValue', 'pValue', 'qValue', 'peak')
-        # x <- x[, c(1,2,3,23,7,8)]
-        x <- x[, c(1,2,3,19,7,5)]
-        return(x)
-      })
-    gb_bed <- lapply(peakAnno_df, function(x){
-        x <- x[-grep("Rik$", ignore.case = F, x$SYMBOL),]
-        x <- x[c(grep("5' UTR", ignore.case = F, x$annotation),
-                 grep("Intron", ignore.case = F, x$annotation),
-                 grep("Exon", ignore.case = F, x$annotation),
-                 grep("Downstream", ignore.case = F, x$annotation),
-                 grep("3' UTR", ignore.case = F, x$annotation)), ]
-        # colnames(x)[6:12] <- c('name', 'score', 'strand2', 'signalValue', 'pValue', 'qValue', 'peak')
-        # x <- x[, c(1,2,3,23,7,8)]
-        x <- x[, c(1,2,3,19,7,5)]
-        return(x)
-      })
-    dis_bed <- lapply(peakAnno_df, function(x){
-        x <- x[-grep("Rik$", ignore.case = F, x$SYMBOL), ]
-        x <- x[grep("Distal Intergenic", ignore.case = F, x$annotation),]
-        # colnames(x)[6:12] <- c('name', 'score', 'strand2', 'signalValue', 'pValue', 'qValue', 'peak')
-        # x <- x[, c(1,2,3,23,7,8)]
-        x <- x[, c(1,2,3,19,7,5)]
-        return(x)
-      })
-  
-Finally, we saved the regions files to BED.  
+提前创建fimo文件夹
+```bash
+vim f1_fimo.sh
 
-    for (i in 1:length(region_bed)) {
-        write.table(region_bed[i],
-                    paste('ATAC-nt-rawdata/saf/', names(region_bed[i]), "_allpeak.bed", sep = ''),
-                    sep = "\t", row.names = F, col.names = F, quote = F)
-      }
-    for (i in 1:length(pm_bed)) {
-        write.table(pm_bed[i],
-                    paste('ATAC-nt-rawdata/pm_saf/', names(pm_bed[i]), "_allpeak.bed", sep = ''),
-                    sep = "\t", row.names = F, col.names = F, quote = F)
-      }
-    for (i in 1:length(gb_bed)) {
-        write.table(gb_bed[i],
-                    paste('ATAC-nt-rawdata/gb_saf/', names(gb_bed[i]), "_allpeak.bed", sep = ''),
-                    sep = "\t", row.names = F, col.names = F, quote = F)
-      }
-    for (i in 1:length(dis_bed)) {
-        write.table(dis_bed[i],
-                    paste('ATAC-nt-rawdata/dis_saf/', names(dis_bed[i]), "_allpeak.bed", sep = ''),
-                    sep = "\t", row.names = F, col.names = F, quote = F)
-      }
+#!/bin/bash
+## fimo ##
 
-The BED files can be used to convert to saf files for featurecount, it also can be used to fimo analysis.  
+path=./fimo
+memedbs=/home/jjyang/downloads/Motif_database/merge_HM_JAS.meme
 
-    vim bed2saf.sh
+cat filenames | while read i; 
+do
+nohup fimo -oc $path/${i} $memedbs ./bed500/${i}_mm10 &
+done
+```
 
-    #!/bin/bash
-    ## make saf (bedtools) for featurecount ##
+提取fimo文件夹中的 tsv 转换为 BED 进行peak注释（R）   
+```bash
+vim f2_tsv2bed.sh
 
-    path=./pm_saf
-    
-    cat filenames | while read i; 
-    do
-    nohup bedtools sort -i $path/${i}_allpeak.bed > $path/${i}.rm.bed && bedtools merge -c 4,6 -o first -i $path/${i}.rm.bed |awk 'BEGIN{print "GeneID" "\t"  "Chr" "\t" "Start" "\t" "End" "\t" "Strand"}{print $4"\t"$1"\t"strtonum($2)"\t"strtonum($3)"\t"$5}' > $path/${i}.saf && rm $path/${i}.rm.bed -rf &
-    done
+#!/bin/bash
+## tsv2bed ##
 
-----
+path=./bed500
 
-## 2.Make BED files to equal length BED files  
-
-    vim f1_bed2equal.sh
-
-    #!/bin/bash
-    ## make BED2equal.config ##
-    ## BED to equal length BED ##
-    
-    path=./pm_saf
-    
-    cat filenames | while read i; 
-    do
-    nohup awk -v FS="\t" -v OFS="\t" '{midpos=$2+$5;print $1,midpos-250,midpos+250;}' $path/${i}_allpeak.bed > $path/${i}_equal_p.bed &
-    done
-
-## 3.Convert BED files to fa files   
-
-    vim f2_bed2fa.sh
-
-    #!/bin/bash
-    ## BED to fa ##
-    
-    path=./pm_saf
-    ucsc_fa=/home/yangjiajun/downloads/genome/mm10_GRCm38/ucsc_fa/GRCm38.primary_assembly.genome.fa
-
-    cat filenames | while read i; 
-    do   
-    bedtools getfasta -fi $ucsc_fa -bed $path/${i}_equal_p.bed -fo $path/${i}_mm10 &
-    done
-
-## 4.Fimo analysis     
-
-    vim f3_fimo.sh
-
-    #!/bin/bash
-    ## fimo ##
-    
-    path=./pm_saf
-    memedbs=/home/yangjiajun/downloads/Motif_database/merge_HM_JAS.meme
-
-    cat filenames | while read i; 
-    do
-    nohup fimo -oc $path/${i} $memedbs $path/${i}_mm10 &
-    done
-
-## 5.Extract the tsv files and convert to BED files  
-
-    vim f4_tsv2bed.sh
-
-    #!/bin/bash
-    ## tsv2bed ##
-
-    path=./pm_saf
-    
-    cat filenames | while read i; 
-    do  
-    cat $path/${i}/fimo.tsv |awk 'NR ==1 {next} {print $2"\t"$3"\t"$4"\t"$1"\t"$7}' |awk '/chr/ {print $1"\t"strtonum($2)"\t"strtonum($3)"\t"$4"\t"$5}' > $path/${i}_fimo.bed &
-    done
+cat filenames | while read i; 
+do  
+cat ./fimo/${i}/fimo.tsv |awk 'NR ==1 {next} {print $2"\t"$3"\t"$4"\t"$1"\t"$7}' |awk '/chr/ {print $1"\t"strtonum($2)"\t"strtonum($3)"\t"$4"\t"$5}' > $path/${i}_fimo.bed &
+done
+```
 
 ## 6.Read BED files and construct the connection files (R)    
 
@@ -247,32 +159,5 @@ We connect the transcription factors and their target genes.
     write.csv(fimo_link_merge, paste0('ATAC-nt-rawdata/fimo/', path, 'fimo_link_merge.csv'), row.names = F)
     save(fimo_link, fimo_linkcod, fimo_link_merge, fimo_link_each, file = paste0('ATAC-nt-rawdata/fimo/', path, 'nt_fimo_link.Rdata'))
 
-## 7.meme-chip analysis  
 
-    We can directly use the file output from f2_bed2fa.sh for meme-chip analysis.
-    
-    vim meme_bed2fa.sh
-    
-    #!/bin/bash
-    ## BED to fa ##
-    
-    ucsc_fa=/home/jjyang/downloads/genome/mm39_GRCm39/ucsc_fa/GRCm39.genome.fa
-    
-    cat filenames | while read i; 
-    do   
-    bedtools getfasta -fi $ucsc_fa -bed ./bed500/${i}_equal_p.bed -fo ./bed500/${i}_mm10 &
-    done
-
-    vim memechip.sh
-    
-    #!/bin/bash
-    ## meme-chip ##
-    
-    path=./meme
-    memedbs=/home/jjyang/downloads/Motif_database/merge_HM_JAS.meme
-    
-    cat filenames | while read i; 
-    do
-    nohup meme-chip -meme-p 6 -oc $path/${i}_meme ./bed500/${i}_mm10 -db $memedbs &
-    done   
 
