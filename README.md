@@ -249,27 +249,30 @@ We connect the transcription factors and their target genes.
 
 ## 7.meme-chip analysis  
 
-We can directly use the file output from f2_bed2fa.sh for meme-chip analysis.
+    We can directly use the file output from f2_bed2fa.sh for meme-chip analysis.
+    
+    vim meme_bed2fa.sh
+    
+    #!/bin/bash
+    ## BED to fa ##
+    
+    ucsc_fa=/home/jjyang/downloads/genome/mm39_GRCm39/ucsc_fa/GRCm39.genome.fa
+    
+    cat filenames | while read i; 
+    do   
+    bedtools getfasta -fi $ucsc_fa -bed ./bed500/${i}_equal_p.bed -fo ./bed500/${i}_mm10 &
+    done
 
-    vim m3_memechip.sh
-
+    vim memechip.sh
+    
     #!/bin/bash
     ## meme-chip ##
     
-    path=./
-    memedbs=/home/yangjiajun/downloads/Motif_database/merge_HM_JAS.meme
+    path=./meme
+    memedbs=/home/jjyang/downloads/Motif_database/merge_HM_JAS.meme
     
     cat filenames | while read i; 
     do
-    nohup meme-chip -meme-p 6 -oc $path/${i}_meme $path/${i}_mm10 -spamo-skip -fimo-skip -db $memedbs &
-    done  
-    
-It may report the following error.  
-
-    Bad file name.
-    Bad file name.
-    Bad file name.
-    FATAL: Template does not contain data section.
-
-Waiting for resolution.
+    nohup meme-chip -meme-p 6 -oc $path/${i}_meme ./bed500/${i}_mm10 -db $memedbs &
+    done   
 
