@@ -58,8 +58,12 @@ cat filenames | while read i; do
     # 运行 bedtools getfasta
     nohup bedtools getfasta -fi "$ucsc_fa" -bed "$input_file" -fo "$output_file" &
 done
-
 ```
+执行 第一个是input 第二个是output
+```bash
+bash meme_bed2fa.sh TSS500/ TSS500/
+```
+
 进行meme-chip分析  
 ```bash
 vim memechip.sh
@@ -90,7 +94,10 @@ cat filenames | while read i; do
     nohup meme-chip -meme-p 6 -oc "$output_path" "$input_file" -db "$memedbs" &
 done
 ```
-    
+执行 第一个是input 第二个是output
+```bash
+bash memechip.sh TSS500/ meme_tss500/
+```
 ## 3.Fimo analysis  
 
 提前创建fimo文件夹
@@ -123,7 +130,10 @@ cat filenames | while read i; do
     nohup fimo -oc "$output_path" "$memedbs" "$input_file" &
 done
 ```
-
+执行 第一个是input 第二个是output
+```bash
+bash f1_fimo.sh TSS500/ fimo_tss500/
+```
 提取fimo文件夹中的 tsv 转换为 BED 进行peak注释（R）   
 ```bash
 vim f2_tsv2bed.sh
