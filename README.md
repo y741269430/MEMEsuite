@@ -25,7 +25,7 @@ ls bed500/*bed |cut -d "_" -f 2 |cut -d "/" -f 2 > filenames
 
 ## 1.构建meme-chip所需的bed文件   
 前面教程介绍过如何创建了，这里不再叙述  
-- https://github.com/y741269430/featurecounts?tab=readme-ov-file#31-%E6%9E%84%E5%BB%BAmeme-chip%E6%89%80%E9%9C%80%E7%9A%84bed%E6%96%87%E4%BB%B6
+- [featurecounts.md](https://github.com/y741269430/featurecounts?tab=readme-ov-file#31-%E6%9E%84%E5%BB%BAmeme-chip%E6%89%80%E9%9C%80%E7%9A%84bed%E6%96%87%E4%BB%B6)
 
 ## 2.meme-chip analysis   
 
