@@ -96,7 +96,7 @@ done
 ```
 执行 第一个是input 第二个是output
 ```bash
-bash memechip.sh TSS500/ meme_tss500/
+bash memechip.sh peak200/ meme_chip_result/
 ```
 ## 3.Fimo analysis  
 
@@ -132,7 +132,7 @@ done
 ```
 执行 第一个是input 第二个是output
 ```bash
-bash f1_fimo.sh TSS500/ fimo_tss500/
+bash f1_fimo.sh peak200/ fimo_results/
 ```
 提取fimo文件夹中的 tsv 转换为 BED 进行peak注释（R）   
 ```bash
