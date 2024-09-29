@@ -20,7 +20,7 @@ conda install -c bioconda meme
 conda install -c bioconda bedtools
 
 # 生成一个filenames的文件，用来记录输出的文件名称（样本名称），例如：
-ls bed500/*bed |cut -d "_" -f 2 |cut -d "/" -f 2 > filenames 
+ls bed/*bed |cut -d "_" -f 2 |cut -d "/" -f 2 > filenames 
 ```
 
 ## 1.构建meme-chip所需的bed文件   
@@ -52,7 +52,7 @@ ucsc_fa=/home/jjyang/downloads/genome/mm39_GRCm39/ucsc_fa/GRCm39.genome.fa
 # 读取文件名列表
 cat filenames | while read i; do
     # 构造输入和输出文件路径
-    input_file="$input_dir/${i}_equal_p.bed"
+    input_file="$input_dir/${i}.bed"
     output_file="$output_dir/${i}_mm10"
 
     # 运行 bedtools getfasta
@@ -61,7 +61,7 @@ done
 ```
 执行 第一个是input 第二个是output
 ```bash
-bash meme_bed2fa.sh TSS500/ TSS500/
+bash meme_bed2fa.sh peak200/ peak200/
 ```
 
 进行meme-chip分析  
@@ -107,7 +107,7 @@ vim f1_fimo.sh
 #!/bin/bash
 ## fimo ##
 
-# 森检查是否提供了足够的参数
+# 检查是否提供了足够的参数
 if [ "$#" -ne 2 ]; then
     echo "Usage: $0 <input_directory> <output_directory>"
     exit 1
@@ -141,11 +141,23 @@ vim f2_tsv2bed.sh
 #!/bin/bash
 ## tsv2bed ##
 
-path=./bed500
+# 检查是否提供了足够的参数
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <input_directory> <output_directory>"
+    exit 1
+fi
+
+# 获取输入和输出目录路径
+input_dir=$1
+output_dir=$2
 
 cat filenames | while read i; 
 do  
-cat ./fimo/${i}/fimo.tsv |awk 'NR ==1 {next} {print $2"\t"$3"\t"$4"\t"$1"\t"$7}' |awk '/chr/ {print $1"\t"strtonum($2)"\t"strtonum($3)"\t"$4"\t"$5}' > $path/${i}_fimo.bed &
+input_file="$input_dir/${i}/fimo.tsv"
+output_path="$output_dir/${i}_fimo.bed"
+
+cat $input_file |awk 'NR ==1 {next} {print $2"\t"$3"\t"$4"\t"$1"\t"$7}' \
+|awk '/chr/ {print $1"\t"strtonum($2)"\t"strtonum($3)"\t"$4"\t"$5}' > $output_path &
 done
 ```
 
