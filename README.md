@@ -27,7 +27,21 @@ ls bed/*bed |cut -d "_" -f 2 |cut -d "/" -f 2 > filenames
 前面教程介绍过如何创建了，这里不再叙述  
 - [featurecounts.md](https://github.com/y741269430/featurecounts?tab=readme-ov-file#31-%E6%9E%84%E5%BB%BAmeme-chip%E6%89%80%E9%9C%80%E7%9A%84bed%E6%96%87%E4%BB%B6)
 
-## 2.meme-chip analysis   
+## 2.peak取重叠区域做meme分析
+前面教程讲了如何构建重叠区域  
+
+```bash
+bedtools intersect -a CON_1.bed -b CON_2.bed > intersect_CON.bed
+bedtools intersect -a treatment_1.bed -b treatment_2.bed > intersect_treatment.bed
+```
+
+## 3.bed转fasta（巨坑）
+使用以下两个命令得到的结果是不一样的，meme需要输入的是第二种结果，否则结果文件会产生error，输出空值。
+```bash
+bed2fasta -name intersect_CON.bed /home/jjyang/downloads/genome/mm39_GRCm39/ucsc_fa/GRCm39.genome.fa > test
+bedtools getfasta -name -bed intersect_CON.bed -fi /home/jjyang/downloads/genome/mm39_GRCm39/ucsc_fa/GRCm39.genome.fa -fo test2
+```
+<img src="https://github.com/y741269430/MEMEsuite/blob/main/img/bed2fa%E7%BB%93%E6%9E%9C%E5%AF%B9%E6%AF%94.png" width="800" />
 
 将bed文件转为fasta文件  
 ```bash
@@ -52,11 +66,11 @@ ucsc_fa=/home/jjyang/downloads/genome/mm39_GRCm39/ucsc_fa/GRCm39.genome.fa
 # 读取文件名列表
 cat filenames | while read i; do
     # 构造输入和输出文件路径
-    input_file="$input_dir/${i}.bed"
+    input_file="$input_dir/intersect_${i}.bed"
     output_file="$output_dir/${i}_mm10"
 
     # 运行 bedtools getfasta
-    nohup bedtools getfasta -fi "$ucsc_fa" -bed "$input_file" -fo "$output_file" &
+    nohup bed2fasta -name "$input_file" "$ucsc_fa" > "$output_file" &
 done
 ```
 执行 第一个是input 第二个是output
