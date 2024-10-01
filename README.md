@@ -38,6 +38,8 @@ bedtools intersect -a CON_1.bed -b CON_2.bed > intersect_CON.bed
 bedtools intersect -a treatment_1.bed -b treatment_2.bed > intersect_treatment.bed
 ```
 
+这里会有错误，原因是经过取重叠区域后，每个peak的长度都不一样了，所以meme会输出空的结果。解决方案是 1.不取作同样处理的样本的交集作为输入，取每个样本进行输入；2.构建重叠区域的时候，补全到一致的长度。   
+
 ## 3.bed转fasta（巨坑）   
 参考   
 - https://meme-suite.org/meme/doc/bed-format.html  
@@ -134,10 +136,10 @@ export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
 source ~/.bashrc
 ```
 > 当我重新运行memechip.sh脚本的时候，结果文件又有error了    
-<img src="https://github.com/y741269430/MEMEsuite/blob/main/img/meme_error2.png" width="900" />
+<img src="https://github.com/y741269430/MEMEsuite/blob/main/img/meme_error2.png" width="600" />
 
 > 大概意思是有重复的基因名，它需要唯一的基因。。没办法只好把名字改成SYMBOL_峰值位置（这样总不会重复了吧）    
-<img src="https://github.com/y741269430/MEMEsuite/blob/main/img/centrimo_error.png" width="900" />
+<img src="https://github.com/y741269430/MEMEsuite/blob/main/img/centrimo_error.png" width="600" />
 
 > 至于centrimo 这个问题，当时计划取的是peak峰值左右100bp的区间，作为motif预测的区域，结果在bed转fasta的时候，有些碱基是被去掉的，导致大部分长度没到200bp，它默认给的参数是`-seqlen 200 `。但是这个命令是有问题的，当我取400bp放进去的时候，它就会报错说你不到400bp，它默认给的参数变为了`-seqlen 400 `。解决方案就是，单独跑这个centrimo 程序
 
