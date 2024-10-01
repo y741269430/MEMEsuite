@@ -135,7 +135,7 @@ source ~/.bashrc
 > 大概意思是有重复的基因名，它需要唯一的基因。。没办法只好把名字改成SYMBOL_峰值位置（这样总不会重复了吧）    
 <img src="https://github.com/y741269430/MEMEsuite/blob/main/img/centrimo_error.png" width="900" />
 
-> 至于centrimo 这个问题，当时计划取的是peak峰值左右100bp的区间，作为motif预测的区域，结果在bed转fasta的时候，有些碱基是被去掉的，导致大部分长度没到200bp，它默认给的参数是`-seqlen 200 `。但是这个命令是有问题的，当我取400bp放进去的时候，它就会报错说你不到400bp。它默认给的参数变为了`-seqlen 400 `。解决方案就是，单独跑这个centrimo 程序
+> 至于centrimo 这个问题，当时计划取的是peak峰值左右100bp的区间，作为motif预测的区域，结果在bed转fasta的时候，有些碱基是被去掉的，导致大部分长度没到200bp，它默认给的参数是`-seqlen 200 `。但是这个命令是有问题的，当我取400bp放进去的时候，它就会报错说你不到400bp，它默认给的参数变为了`-seqlen 400 `。解决方案就是，单独跑这个centrimo 程序
 
 ## 5.Fimo analysis  
 
