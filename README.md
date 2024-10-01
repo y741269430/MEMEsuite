@@ -38,7 +38,11 @@ bedtools intersect -a CON_1.bed -b CON_2.bed > intersect_CON.bed
 bedtools intersect -a treatment_1.bed -b treatment_2.bed > intersect_treatment.bed
 ```
 
-## 3.bed转fasta（巨坑）
+## 3.bed转fasta（巨坑）   
+参考   
+- https://meme-suite.org/meme/doc/bed-format.html  
+- https://meme-suite.org/meme/doc/bed2fasta.html?man_type=web  
+
 使用以下两个命令得到的结果是不一样的，meme需要输入的是第一种结果，否则结果文件会产生error，输出空值。
 ```bash
 bed2fasta -name intersect_CON.bed /home/jjyang/downloads/genome/mm39_GRCm39/ucsc_fa/GRCm39.genome.fa > test
