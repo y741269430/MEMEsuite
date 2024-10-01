@@ -38,7 +38,14 @@ bedtools intersect -a CON_1.bed -b CON_2.bed > intersect_CON.bed
 bedtools intersect -a treatment_1.bed -b treatment_2.bed > intersect_treatment.bed
 ```
 
-这里会有错误，原因是经过取重叠区域后，每个peak的长度都不一样了，所以meme会输出空的结果。解决方案是 1.不取作同样处理的样本的交集作为输入，取每个样本进行输入；2.构建重叠区域的时候，补全到一致的长度。   
+> 这里会有错误，原因是经过取重叠区域后，每个peak的长度都不一样了，所以meme会输出空的结果。解决方案是 
+> 1.不取作同样处理的样本的交集作为输入，取每个样本进行输入；
+> 2.构建重叠区域的时候，补全到一致的长度（以下代码我把末端去掉，改为起始端+300bp，无奈之举）。
+
+```bash
+bedtools intersect -a CON_1.bed -b CON_2.bed | awk -F'\t' '{print $1, $2, $2+300, $4}' OFS='\t' > intersect_CON.bed
+bedtools intersect -a treatment_1.bed -b treatment_2.bed | awk -F'\t' '{print $1, $2, $2+300, $4}' OFS='\t' > intersect_treatment.bed
+```
 
 ## 3.bed转fasta（巨坑）   
 参考   
