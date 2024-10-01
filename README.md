@@ -117,9 +117,10 @@ bash memechip.sh peak200/ meme_chip_result/
 ```
 
 ## meme输出结果的一个error  
-<img src="https://github.com/y741269430/MEMEsuite/blob/main/img/meme_error.png" width="600" />  
+<img src="https://github.com/y741269430/MEMEsuite/blob/main/img/meme_error.png" width="900" />   
 第一个错误大概意思是 Open MPI 在尝试加载 librdmacm.so.1 这个共享对象文件时失败了，原因是找不到这个文件，并且在使用 mpirun 运行 meme 程序时出现了问题，其中一个或多个进程以非零状态退出，导致整个任务被终止。此外，错误信息还提到了 CMA（Contiguous Memory Allocator）权限被拒绝的问题。   
-初步解决方案  
+初步解决方案    
+
 ```bash
 sudo apt-get install libibverbs1
 
