@@ -2,8 +2,10 @@
 
 - 0.创建conda环境用于meme分析  
 - 1.构建meme-chip所需的bed文件
-- 2.meme-chip analysis   
-- 3.Fimo analysis  
+- 2.peak取重叠区域做meme分析
+- 3.bed转fasta（巨坑）
+- 4.meme-chip analysis   
+- 5.Fimo analysis  
 
 ---
 
@@ -78,7 +80,7 @@ done
 bash meme_bed2fa.sh peak200/ peak200/
 ```
 
-进行meme-chip分析  
+## 4.meme-chip analysis   
 ```bash
 vim memechip.sh
 
@@ -112,7 +114,7 @@ done
 ```bash
 bash memechip.sh peak200/ meme_chip_result/
 ```
-## 3.Fimo analysis  
+## 5.Fimo analysis  
 
 提前创建fimo文件夹
 ```bash
