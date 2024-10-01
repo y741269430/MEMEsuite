@@ -36,12 +36,12 @@ bedtools intersect -a treatment_1.bed -b treatment_2.bed > intersect_treatment.b
 ```
 
 ## 3.bed转fasta（巨坑）
-使用以下两个命令得到的结果是不一样的，meme需要输入的是第二种结果，否则结果文件会产生error，输出空值。
+使用以下两个命令得到的结果是不一样的，meme需要输入的是第一种结果，否则结果文件会产生error，输出空值。
 ```bash
 bed2fasta -name intersect_CON.bed /home/jjyang/downloads/genome/mm39_GRCm39/ucsc_fa/GRCm39.genome.fa > test
 bedtools getfasta -name -bed intersect_CON.bed -fi /home/jjyang/downloads/genome/mm39_GRCm39/ucsc_fa/GRCm39.genome.fa -fo test2
 ```
-<img src="https://github.com/y741269430/MEMEsuite/blob/main/img/bed2fa%E7%BB%93%E6%9E%9C%E5%AF%B9%E6%AF%94.png" width="800" />
+<img src="https://github.com/y741269430/MEMEsuite/blob/main/img/bed2fa%E7%BB%93%E6%9E%9C%E5%AF%B9%E6%AF%94.png" width="600" />
 
 将bed文件转为fasta文件  
 ```bash
@@ -73,7 +73,7 @@ cat filenames | while read i; do
     nohup bed2fasta -name "$input_file" "$ucsc_fa" > "$output_file" &
 done
 ```
-执行 第一个是input 第二个是output
+执行该脚本  第一个是input 第二个是output  
 ```bash
 bash meme_bed2fa.sh peak200/ peak200/
 ```
@@ -108,7 +108,7 @@ cat filenames | while read i; do
     nohup meme-chip -meme-p 6 -oc "$output_path" "$input_file" -db "$memedbs" &
 done
 ```
-执行 第一个是input 第二个是output
+执行该脚本  第一个是input 第二个是output  
 ```bash
 bash memechip.sh peak200/ meme_chip_result/
 ```
@@ -144,7 +144,7 @@ cat filenames | while read i; do
     nohup fimo -oc "$output_path" "$memedbs" "$input_file" &
 done
 ```
-执行 第一个是input 第二个是output
+执行该脚本  第一个是input 第二个是output  
 ```bash
 bash f1_fimo.sh peak200/ fimo_results/
 ```
