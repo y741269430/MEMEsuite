@@ -61,7 +61,7 @@ bedtools getfasta -name -bed intersect_CON.bed -fi /home/jjyang/downloads/genome
 
 将bed文件转为fasta文件  
 ```bash
-vim meme_bed2fa.sh
+vim bed2fa.sh
 
 #!/bin/bash
 ## BED to fa ##
