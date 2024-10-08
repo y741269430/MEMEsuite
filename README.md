@@ -49,8 +49,8 @@ bedtools intersect -a treatment_1.bed -b treatment_2.bed | awk -F'\t' '{print $1
 
 ## 3.bed转fasta（巨坑）   
 参考   
-- https://meme-suite.org/meme/doc/bed-format.html  
-- https://meme-suite.org/meme/doc/bed2fasta.html?man_type=web  
+- [BED Genomic Loci Format](https://meme-suite.org/meme/doc/bed-format.html)  
+- [BED2FASTA](https://meme-suite.org/meme/doc/bed2fasta.html?man_type=web)  
 
 使用以下两个命令得到的结果是不一样的，meme需要输入的是第一种结果，否则结果文件会产生error，输出空值。
 ```bash
