@@ -38,9 +38,9 @@ bedtools intersect -a CON_1.bed -b CON_2.bed > intersect_CON.bed
 bedtools intersect -a treatment_1.bed -b treatment_2.bed > intersect_treatment.bed
 ```
 
-> 这里会有错误，原因是经过取重叠区域后，每个peak的长度都不一样了，所以meme会输出空的结果。解决方案是 
-> 1.不取作同样处理的样本的交集作为输入，取每个样本进行输入；
-> 2.构建重叠区域的时候，补全到一致的长度（以下代码我把末端去掉，改为起始端+300bp，无奈之举）。
+> 这里会有错误：在处理基因组peak数据时，如果对重叠区域进行筛选后，每个peak的长度变得不一致，这将导致MEME工具无法正确识别并输出motif，最终得到空的结果。为了解决这一问题，我们可以采取以下两种策略之一：    
+> 1.独立样本输入：放弃对所有样本取交集以获得共同的peak区域的做法，转而将每个样本的原始peak数据分别作为MEME的输入。这种方法保留了每个样本的独特信息，避免了因长度不一致而导致的问题。    
+> 2.统一peak长度：在构建重叠区域时，确保所有peak具有相同的长度。可以通过将较短的peak扩展至一个固定的长度来实现，例如，将peak的末端位置调整为其起始端加300碱基对（bp）。这样做的目的是使所有输入到MEME的peak拥有相同长度，从而保证分析的有效性。    
 
 ```bash
 bedtools intersect -a CON_1.bed -b CON_2.bed | awk -F'\t' '{print $1, $2, $2+300, $4}' OFS='\t' > intersect_CON.bed
@@ -52,7 +52,7 @@ bedtools intersect -a treatment_1.bed -b treatment_2.bed | awk -F'\t' '{print $1
 - [BED Genomic Loci Format](https://meme-suite.org/meme/doc/bed-format.html)  
 - [BED2FASTA](https://meme-suite.org/meme/doc/bed2fasta.html?man_type=web)  
 
-使用以下两个命令得到的结果是不一样的，meme需要输入的是第一种结果，否则结果文件会产生error，输出空值。
+使用以下两个命令处理基因组数据时，会得到不同的输出结果，meme需要输入的是第一个命令产生的结果。而bedtools getfasta命令产生的结果文件会有error，输出空值。因此推荐使用以下meme_bed2fa.sh脚本    
 ```bash
 bed2fasta -name intersect_CON.bed /home/jjyang/downloads/genome/mm39_GRCm39/ucsc_fa/GRCm39.genome.fa > test
 bedtools getfasta -name -bed intersect_CON.bed -fi /home/jjyang/downloads/genome/mm39_GRCm39/ucsc_fa/GRCm39.genome.fa -fo test2
@@ -61,7 +61,7 @@ bedtools getfasta -name -bed intersect_CON.bed -fi /home/jjyang/downloads/genome
 
 将bed文件转为fasta文件  
 ```bash
-vim bed2fa.sh
+vim meme_bed2fa.sh
 
 #!/bin/bash
 ## BED to fa ##
@@ -91,6 +91,7 @@ done
 ```
 执行该脚本  第一个是input 第二个是output  
 ```bash
+conda activate meme    
 bash meme_bed2fa.sh peak200/ peak200/
 ```
 
